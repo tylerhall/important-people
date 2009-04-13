@@ -39,8 +39,12 @@
         if($stupid_twitter)
         {
             $html = geturl("http://twitter.com/$username", true);
-            $followers = match('/follower_count.*?([0-9]+)/ms', $html, 1);
-            $updates = match('/update_count.*?([0-9]+)/ms', $html, 1);
+            $followers = match('/follower_count.*?([0-9,]+)/ms', $html, 1);
+            $updates = match('/update_count.*?([0-9,]+)/ms', $html, 1);
+
+			$followers = preg_replace('/[^0-9]/', '', $followers);
+			$updates = preg_replace('/[^0-9]/', '', $updates);
+
             return array('followers' => $followers, 'updates' => $updates);
         }
         else
@@ -67,7 +71,7 @@
         global $maximum_hotness;
         if($maximum_hotness == 0) return '#ffffff';
         $val = str_pad(dechex(255 - round($val / $maximum_hotness * 255)), 2, '0');
-        return '#ff' . $val . $val;
+        return '#ffff' . $val;
     }
 
     $maximum_hotness = 0;
@@ -82,7 +86,7 @@
 
         // For now, let's be nice and only pull three pages of results...
         $pages = 0;
-        while($url && $pages++ < 3)
+        while($url && $pages++ < 10)
         {
             $xmlstr = geturl($url, true);
             $xml    = simplexml_load_string($xmlstr);
@@ -153,8 +157,8 @@
             <?PHP foreach($tweets as $t) : ?>
             <tr style="background-color:<?PHP echo hotness($users[$t['user']]['followers']); ?>">
                 <td><a href="http://twitter.com/<?PHP echo $t['user']; ?>/"><?PHP echo $t['user']; ?></a></td>
-                <td><?PHP echo $users[$t['user']]['followers']; ?></td>
-                <td><?PHP echo $users[$t['user']]['updates']; ?></td>
+                <td><?PHP echo number_format($users[$t['user']]['followers']); ?></td>
+                <td><?PHP echo number_format($users[$t['user']]['updates']); ?></td>
                 <td><?PHP echo $t['dt']; ?></td>
                 <td><?PHP echo $t['msg']; ?></td>
             </tr>
