@@ -42,8 +42,8 @@
             $followers = match('/follower_count.*?([0-9,]+)/ms', $html, 1);
             $updates = match('/update_count.*?([0-9,]+)/ms', $html, 1);
 
-			$followers = preg_replace('/[^0-9]/', '', $followers);
-			$updates = preg_replace('/[^0-9]/', '', $updates);
+            $followers = preg_replace('/[^0-9]/', '', $followers);
+            $updates = preg_replace('/[^0-9]/', '', $updates);
 
             return array('followers' => $followers, 'updates' => $updates);
         }
@@ -129,6 +129,12 @@
             exit;
         }
     }
+
+    $xmlstr = geturl('http://twitter.com/account/rate_limit_status.xml');
+    $xml = simplexml_load_string($xmlstr);
+    $api_calls_remaining = (string) $xml->{'remaining-hits'};
+    $reset_time = localtime(strtotime((string) $xml->{'reset-time'}), true);
+    $reset_time = date('m/d/Y g:ia', mktime($reset_time['tm_hour'], $reset_time['tm_min'], $reset_time['tm_sec'], $reset_time['tm_mon'], $reset_time['tm_mday'] + 1, $reset_time['tm_year']));
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -141,6 +147,7 @@
 <body>
     <form action="<?PHP echo $_SERVER['PHP_SELF']; ?>" method="get">
         <p><label for="q">Search Query:</label> <input type="text" name="q" value="" id="q"></p>
+        <p><?PHP echo $api_calls_remaining; ?> API calls remaining. Will reset at <?PHP echo $reset_time; ?>.</p>
     </form>
     <?PHP if(isset($_GET['q'])) : ?>
     <table>
