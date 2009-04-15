@@ -30,7 +30,7 @@
 		exit;
 	}
 
-	$pages_to_fetch = isset($_GET['pages']) ? intval($_GET['pages']) : 1;
+	$pages_to_fetch = isset($_GET['pages']) ? intval($_GET['pages']) : 10;
 
 	if(isset($_GET['q']))
 	{
@@ -150,7 +150,10 @@
 			$url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftwitter.com%2F$user%22%20and%0A%20%20%20%20%20%20xpath%3D'%2F%2Fspan%5B%40class%3D%22stats_count%20numeric%22%5D'%0A%20%20%20%20&format=xml";
 			$xmlstr = geturl($url);
 			$uxml = simplexml_load_string($xmlstr);
-			return array('followers' => (string) $uxml->results->span[1], 'updates' => (string) $uxml->results->span[2], 'username' => $username);
+			
+			$followers = preg_replace('/[^0-9]/', '', (string) $uxml->results->span[1]);
+			$updates = preg_replace('/[^0-9]/', '', (string) $uxml->results->span[2]);
+			return array('followers' => $followers, 'updates' => $updates, 'username' => $username);
 		}
 		else // Use Twitter's API
 		{
@@ -269,7 +272,8 @@
 
 	<p>During a conversation at work, <a
 	href="http://twitter.com/mulls/">@mulls</a> wanted a quick way to see who are
-	the most influential people tweeting about a specific topic. We came up with
+	the most influential people tweeting about a specific topic.
+	<a href="http://twitter.com/chadauld/">@chadauld</a> and I came up with
 	the simple metric of ranking users by their follower count. And this is the
 	result.</p>
 
