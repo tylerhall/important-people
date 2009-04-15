@@ -49,6 +49,7 @@
 			foreach($xml->entry as $tweet)
 			{
 				$user = array_shift(explode(' ', (string) $tweet->author->name));
+				if($user === $q) continue; // Uncomment to filter out username that match the query
 				$tweets[] = array('msg'	 => (string) $tweet->content,
 								  'user' => $user,
 								  'link' => (string) $tweet->link[0]['href'],
@@ -240,7 +241,7 @@
 					// Know when to quit
 					if(completed_rows == <?PHP echo count($tweets); ?>) {
 						colorRows(max);
-						pt.text('Done!');
+						pt.text('Done! <?PHP echo count($tweets); ?> total');
 					}
 				});
 
