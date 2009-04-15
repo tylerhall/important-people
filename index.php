@@ -30,7 +30,7 @@
 		exit;
 	}
 
-	$pages_to_fetch = isset($_GET['pages']) ? intval($_GET['pages']) : 10;
+	$pages_to_fetch = isset($_GET['pages']) ? intval($_GET['pages']) : 1;
 
 	if(isset($_GET['q']))
 	{
@@ -49,7 +49,7 @@
 			foreach($xml->entry as $tweet)
 			{
 				$user = array_shift(explode(' ', (string) $tweet->author->name));
-				if($user === $q) continue; // Uncomment to filter out username that match the query
+				if(($user === $q) || ("@$user" === $q)) continue; // Uncomment to filter out username that match the query
 				$tweets[] = array('msg'	 => (string) $tweet->content,
 								  'user' => $user,
 								  'link' => (string) $tweet->link[0]['href'],
@@ -188,7 +188,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Important People</title>
+	<title>Important People - (<?PHP echo htmlspecialchars($_GET['q']); ?>)</title>
 	<!-- Love us some YUI -->
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css">
 	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.7.0/build/base/base-min.css">
@@ -196,7 +196,7 @@
 	<script type="text/javascript" charset="utf-8" src="http://cdn.clickontyler.com/js/jquery.min.20090210210309.gz.js"></script>
 
 	<style type="text/css" media="screen">
-		form, p { text-align:left; }
+		h1, h2, form, p { text-align:left; }
 		th { background-color:#ccc; color:#000; }
 		td.dt { white-space:nowrap; }
 		td.msg { text-align:left; }
@@ -265,11 +265,42 @@
 	</script>
 </head>
 <body>
+	<h1>Important People</h1>
+
+	<p>During a conversation at work, <a
+	href="http://twitter.com/mulls/">@mulls</a> wanted a quick way to see who are
+	the most influential people tweeting about a specific topic. We came up with
+	the simple metric of ranking users by their follower count. And this is the
+	result.</p>
+
+	<p>Users with lots of followers are colored bright yellow, gradiating down to
+	users that no one cares about in white, and ordered by date &mdash; most
+	recent on top.</p>
+
+	<p>That said, given more time, we should probably develop a better metric.
+	Take into account their updates per day, or how many followers *their*
+	followers have. Something like that.</p>
+
+	<p>Anyway, because Twitter's API is ass, we load the follower counts on the
+	client side by making callbacks to <a href="http://developer.yahoo.com/yql/">Yahoo!'s YQL service</a>,
+	which scrapes the data for us and also serves as a proxy for when Twitter goes down.</p>
+
+	<p>This was written in a couple hours, so don't hate too much. Feedback is welcome either at
+	<a href="http://twitter.com/tylerhall/">@tylerhall</a> or
+	<a href="http://clickontyler.com/contact/">here</a>. Oh, and please be nice. This
+	is running on my own server and pegs its CPU pretty hard. For this demo I've
+	limited the results to one page of data. Feel free to
+	<a href="http://github.com/tylerhall/important-people/tree/master">download and run it on
+	your own box</a> to get a complete set of results.</p>
+
+
+	<h2>Search</h2>
 	<form action="<?PHP echo $_SERVER['PHP_SELF']; ?>" method="get">
 		<p>
 			<label for="q">Search Query:</label> <input type="text" name="q" value="<?PHP if(isset($_GET['q'])) echo htmlspecialchars($_GET['q']); ?>" id="q">
 			<input type="submit" name="btnSubmit" value="Search" id="btnSubmit">
 		</p>
+		<p>Can't think of anything to search for? <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=gruber">Here</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=tylerhall">are</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=yahoo">a</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=sideline">few</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=nashville">examples</a>.</p>
 		<p><?PHP echo $api_calls_remaining; ?> API calls remaining. Will reset at <?PHP echo $reset_time; ?>.</p>
 	</form>
 
