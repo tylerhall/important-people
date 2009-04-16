@@ -145,9 +145,9 @@
 		}
 		elseif($stupid_twitter === 'yql') // Go through YQL
 		{
-			// YQL: select * from html where url="http://twitter.com/{username}" and xpath='//span[@class="stats_count numeric"]'
+			// YQL: select * from html where url="http://twitter.com/tylerhall/" and xpath='//span[contains(@class, "_count")]'
 			$user = urlencode($username);
-			$url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftwitter.com%2F$user%22%20and%0A%20%20%20%20%20%20xpath%3D'%2F%2Fspan%5B%40class%3D%22stats_count%20numeric%22%5D'%0A%20%20%20%20&format=xml";
+			$url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftwitter.com%2F" . $user . "%2F%22%20and%20xpath%3D'%2F%2Fspan%5Bcontains(%40class%2C%20%22_count%22)%5D'&format=xml";
 			$xmlstr = geturl($url);
 			$uxml = simplexml_load_string($xmlstr);
 			
@@ -181,7 +181,7 @@
 			$dt = strtotime($dt);
 
 		$arr = localtime($dt, true);
-		$local_time = date($format, mktime($arr['tm_hour'], $arr['tm_min'], $arr['tm_sec'], $arr['tm_mon'], $arr['tm_mday'], $arr['tm_year']));
+		$local_time = date($format, mktime($arr['tm_hour'], $arr['tm_min'], $arr['tm_sec'], $arr['tm_mon'] + 1, $arr['tm_mday'], $arr['tm_year']));
 		return $local_time;
 	}
 ?>
@@ -337,5 +337,6 @@
 		</tbody>
 	</table>
 	<?PHP endif; ?>
+	<script type="text/javascript" src="/mint/?js" ></script>
 </body>
 </html>
