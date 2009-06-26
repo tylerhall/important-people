@@ -7,6 +7,8 @@
     }
 
     $pages_to_fetch = isset($_GET['pages']) ? intval($_GET['pages']) : 1;
+    if($pages_to_fetch > 50) $pages_to_fetch = 50;
+    if($pages_to_fetch < 1) $pages_to_fetch = 1;
 
     if(isset($_GET['q']))
     {
@@ -53,7 +55,7 @@
             header("Content-Disposition: attachment; filename=" . $_GET['q'] . ".csv");
             header("Content-Type: text/csv");
 
-            echo "message,username,permalink,timestamp,followers,updates\n";
+            echo "message,username,permalink,timestamp,following,followers,updates\n";
             $fp = fopen('php://output', 'w');
             foreach($tweets as $t)
             {
@@ -325,15 +327,15 @@
 
     <p>Anyway, because Twitter's API ocasionally doesn't respond quickly enough, we load the follower counts on the client side by making callbacks to <a href="http://developer.yahoo.com/yql/">Yahoo!'s YQL service</a>, which pulls the data for us and also serves as a proxy for when Twitter goes down.</p>
 
-    <p>This was written in a couple hours, so don't hate too much. (We know it doesn't currently work in Internet Explorer.) For this demo we've limited the results to two pages of data. Feel free to <a href="http://github.com/tylerhall/important-people/tree/master">download and run it on your own box</a> to get a complete set of results.</p>
+    <p>This was written in a couple hours, so don't hate too much. (We know it doesn't currently work in Internet Explorer.) Feel free to <a href="http://github.com/tylerhall/important-people/tree/master">download and run it on your own box</a>.</p>
 
-    <p><strong>Update 4/18:</strong> We've added an experimental new feature which attempts to highlight (er...ignore) users that we detect are "spammy". Our reason for doing this it to try and filter out users that are clearly trying to game Twitter. You'll see that these users are greyed out. And here's the formula we're using to detect them:</p>
+    <p><strong>Update 4/18:</strong> We've added an experimental new feature which attempts to highlight (er...ignore) users that we detect are spammy. Our reason for doing this it to try and filter out users that are merely contributing to Twitter's noise. You'll see that these users are greyed out. And here's the formula we're using to detect them:</p>
     <blockquote>(followers &gt; &#956; + &#963; / 4) &amp;&amp; (following &gt; followers * 0.75)</blockquote>
     <?PHP endif; ?>
 
     <h2>Whatcha think?</h2>
 
-    <p>Do you find this hack useful? We'd love to get your feedback as we're thinking of incorporating this functionality directly into Sideline. Let us know! Feedback is welcome either at <a href="http://twitter.com/tylerhall/">@tylerhall</a>, <a href="http://twitter.com/chadauld/">@chadauld</a>, or <a href="http://twitter.com/ysideline/">@ysideline</a>.</p>
+    <p>Do you find this hack useful? We'd love to get your feedback as we're thinking of incorporating this functionality directly into <a href="http://sideline.yahoo.com">Sideline</a>. Let us know! Feedback is welcome either at <a href="http://twitter.com/tylerhall/">@tylerhall</a>, <a href="http://twitter.com/chadauld/">@chadauld</a>, or <a href="http://twitter.com/ysideline/">@ysideline</a>.</p>
 
     <h1>Search</h1>
     <form action="<?PHP echo $_SERVER['PHP_SELF']; ?>" method="get">
@@ -342,11 +344,12 @@
             <input type="submit" name="btnSubmit" value="Search" id="btnSubmit">
             <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>">Clear Results</a>
         </p>
+        <p>Number of pages: <input type="text" name="pages" value="<?PHP echo $pages_to_fetch; ?>" id="pages"></p>
         <p>Can't think of anything to search for? <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=gruber">Here</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=tylerhall">are</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=yahoo">a</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=sideline">few</a> <a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=nashville">examples</a>.</p>
     </form>
 
     <?PHP if(isset($_GET['q'])) : ?>
-    <p><a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=<?PHP echo urlencode($_GET['q']); ?>&amp;csv">Download CSV</a></p>
+    <p><a href="<?PHP echo $_SERVER['PHP_SELF']; ?>?q=<?PHP echo urlencode($_GET['q']); ?>&amp;csv&amp;pages=<?PHP echo $pages_to_fetch; ?>">Download CSV</a></p>
     <div id="progress">
         <p></p>
         <span></span>
